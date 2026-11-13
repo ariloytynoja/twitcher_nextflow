@@ -22,13 +22,14 @@ if (!params.assembly) {
 // ---------------------------------------------------------------------------
 // Modules
 // ---------------------------------------------------------------------------
-include { DOWNLOAD_REFERENCE } from './modules/download_reference'
-include { MERYL_COUNT        } from './modules/meryl_count'
-include { MERYL_REPETITIVE   } from './modules/meryl_repetitive'
-include { WINNOWMAP_ALIGN    } from './modules/winnowmap_align'
-include { MINIMAP2_ALIGN    } from './modules/minimap2_align'
-include { SAMTOOLS_INDEX     } from './modules/samtools_index'
-include { TWITCHER_BAM       } from './modules/twitcher_bam'
+include { DOWNLOAD_REFERENCE  } from './modules/download_reference'
+include { DOWNLOAD_GA4GH_MASK } from './modules/download_ga4gh_mask'
+include { MERYL_COUNT         } from './modules/meryl_count'
+include { MERYL_REPETITIVE    } from './modules/meryl_repetitive'
+include { WINNOWMAP_ALIGN     } from './modules/winnowmap_align'
+include { MINIMAP2_ALIGN      } from './modules/minimap2_align'
+include { SAMTOOLS_INDEX      } from './modules/samtools_index'
+include { TWITCHER_BAM        } from './modules/twitcher_bam'
 include { DOWNLOAD_ANNOTATION } from './modules/download_annotation'
 include { TWB_PROCESS         } from './modules/twb_process'
 include { TWB_FILTER          } from './modules/twb_filter'
@@ -48,7 +49,11 @@ workflow {
         params.ref_gzi
     )
 
-     if (params.aligner == 'winnowmap') {
+    // Download genome stratification mask
+    DOWNLOAD_GA4GH_MASK()
+
+    // Align
+    if (params.aligner == 'winnowmap') {
         // Compute repetitive kmers from the reference
         MERYL_COUNT(DOWNLOAD_REFERENCE.out.ref_fa, params.kmer_size)
         MERYL_REPETITIVE(MERYL_COUNT.out.merylDB, params.kmer_distinct_threshold)
@@ -74,13 +79,24 @@ workflow {
     // Index BAM
     SAMTOOLS_INDEX(bam_ch)
 
-     // Run twitcher, iterating over chromosomes internally
+    // Analyse only the full chromosomes
+    chromosomes_ch = Channel.of(
+        'chr1',  'chr2',  'chr3',  'chr4',  'chr5',  'chr6',
+        'chr7',  'chr8',  'chr9',  'chr10', 'chr11', 'chr12',
+        'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18',
+        'chr19', 'chr20', 'chr21', 'chr22', 'chrX'
+    )
+
+    // Run twitcher, iterating over chromosomes internally
     twitcher_input_ch = bam_ch
         .combine(SAMTOOLS_INDEX.out.bai)
         .map { bam, bai -> tuple(bam.simpleName, bam, bai) }
         .combine(DOWNLOAD_REFERENCE.out.ref_fa)
         .combine(DOWNLOAD_REFERENCE.out.ref_fai)
         .combine(DOWNLOAD_REFERENCE.out.ref_gzi)
+        .combine(DOWNLOAD_GA4GH_MASK.out.bed)
+        .combine(DOWNLOAD_GA4GH_MASK.out.bed_tbi)
+        .combine(chromosomes_ch)
 
     TWITCHER_BAM(twitcher_input_ch)
    
