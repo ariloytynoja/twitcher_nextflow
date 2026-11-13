@@ -33,5 +33,3 @@ By default, the analysis is performed for the [GIAB "easy regions"](https://ftp-
 The expected timeline of an analysis may look like this:
 ![Nextflow timeline](twitcher_asm_nf/misc/twitcher_bam_timeline_NA12877.png)
 and the Twitcher part is expected to get increasingly fast as an ever greater proportion of the segregating mutations are stored in the DB. 
-
-See the [full timeline](twitcher_asm_nf/misc/NA12877.verkko_asm_timeline.html) and [execution report](twitcher_asm_nf/misc/NA12877.verkko_asm_execution_report.html) for more details of this analysis.
