@@ -9,13 +9,14 @@ process MINIMAP2_ALIGN {
     path ref_fa
  
     output:
-    path "${assembly.simpleName}.bam", emit: bam
+    path "*.bam", emit: bam
 
     script:
-    def sample  = assembly.simpleName
+    def sample = params.prefix != "latest" ? params.prefix : assembly.simpleName
     def mm_cpus = Math.max(1, Math.floor(task.cpus / 2).toInteger())
     """
     minimap2 \
+        -R '@RG\\tID:$sample\\tSM:$sample' \
         --MD \
         -ax asm5 \
         -t ${mm_cpus} \

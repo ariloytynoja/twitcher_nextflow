@@ -90,7 +90,8 @@ workflow {
     // Run twitcher, iterating over chromosomes internally
     twitcher_input_ch = bam_ch
         .combine(SAMTOOLS_INDEX.out.bai)
-        .map { bam, bai -> tuple(bam.simpleName, bam, bai) }
+        .map { bam, bai -> 
+        tuple(bam.getBaseName(1), bam, bai) }
         .combine(DOWNLOAD_REFERENCE.out.ref_fa)
         .combine(DOWNLOAD_REFERENCE.out.ref_fai)
         .combine(DOWNLOAD_REFERENCE.out.ref_gzi)
@@ -123,5 +124,4 @@ workflow {
     TWB_FILTER(
         TWB_PROCESS.out.csv.groupTuple()
     )
-
 }

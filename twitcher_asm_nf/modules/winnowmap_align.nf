@@ -16,13 +16,14 @@ process WINNOWMAP_ALIGN {
     path repetitive_kmers
 
     output:
-    path "${assembly.simpleName}.bam", emit: bam
+    path "*.bam", emit: bam
 
     script:
     def sample = params.prefix != "latest" ? params.prefix : assembly.simpleName
     def wm_cpus = Math.max(1, Math.floor(task.cpus / 2).toInteger())
     """
     winnowmap \
+        -R '@RG\\tID:$sample\\tSM:$sample' \
         --MD \
         -W ${repetitive_kmers} \
         -k ${params.kmer_size} \

@@ -1,4 +1,4 @@
-/*
+    /*
  * Run twitcher over selected (main) chromosomes on a BAM file.
  */
 
@@ -10,17 +10,6 @@ process TWITCHER_BAM {
         file("${task.workDir}/${filename}").size() > 0 ? filename : null
     }
     
-    /*
-    tag "${sample}"
-    label 'twitcher'
-
-        publishDir "${params.outdir}/twitcher/${sample}", mode: 'copy', saveAs: { filename ->
-        // Skip empty files, route non-empty files into per-chromosome subdirectories
-        def chr = filename.tokenize('.')[1]
-        file("${task.workDir}/${filename}").size() > 0 ? "${chr}/${filename}" : null
-    }
-    */
-
     input:
     tuple val(sample), path(bam), path(bai), path(ref), path(ref_fai), path(ref_gzi), path(mask), path(mask_tbi), val(chr)
 
