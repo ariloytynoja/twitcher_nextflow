@@ -13,10 +13,10 @@ git clone https://github.com/ariloytynoja/twitcher_nextflow.git
 
 ## Analysis of de novo genome assemblies 
 
-The pipeline `twitcher_asm_nf`:
-- aligns a genome assembly against a reference using `minimap2`
-- runs `twitcher` on the resulting BAM files
-- prcesses and filters the CSV output files with `twb cli`
+The pipeline `twitcher_asm_nf`:   
+  - aligns a genome assembly against a reference using `minimap2`   
+  - runs `twitcher` on the resulting BAM files   
+  - prcesses and filters the CSV output files with `twb cli`   
 
 An example command:
 ```
