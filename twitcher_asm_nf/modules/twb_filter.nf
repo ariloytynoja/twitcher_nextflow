@@ -14,10 +14,12 @@ process TWB_FILTER {
     tuple val(sample), path(csvs)
 
     output:
-    tuple val(sample), path("${sample}.filter.loose.csv"),  emit: loose, optional: true
-    tuple val(sample), path("${sample}.filter.strict.csv"), emit: strict, optional: true
-    tuple val(sample), path("${sample}.filter.loose.report.json"),  emit: loose_report, optional: true
-    tuple val(sample), path("${sample}.filter.strict.report.json"), emit: strict_report, optional: true
+    tuple val(sample), path("${sample}.filter1.csv"), emit: filter1, optional: true
+    tuple val(sample), path("${sample}.filter2.csv"), emit: filter2, optional: true
+    tuple val(sample), path("${sample}.filter3.csv"), emit: filter3, optional: true
+    tuple val(sample), path("${sample}.filter1.report.json"), emit: filter1_report, optional: true
+    tuple val(sample), path("${sample}.filter2.report.json"), emit: filter2_report, optional: true
+    tuple val(sample), path("${sample}.filter3.report.json"), emit: filter3_report, optional: true
 
     script:
     """
@@ -29,40 +31,52 @@ process TWB_FILTER {
             echo "Skipping \${csv}: no data rows found"
         else
             twb cli -O \$(realpath \${csv}) \
-                -o \${name}.filter.loose.csv \
+                -o \${name}.filter1.csv \
                 -f ts_2_3_max:gte:8 \
                 -f tsm_copy_identity:eq:1 \
                 -f duplicate_group_is_representative:eq:1 \
                 -f repeat_overlap:eq:0 \
-                -f delta_total_mismatch_bp:gte:0 \
                 -f delta_total_edit_bp:gte:2 \
-                -R \${name}.filter.loose.report.json
+                -R \${name}.filter1.report.json
 
-            twb cli -O \$(realpath \${csv}) \
-                -o \${name}.filter.strict.csv \
-                -f identity_20bp_upstream:eq:0.9 \
-                -f identity_20bp_downstream:eq:0.9 \
+            twb cli -O \${name}.filter1.csv \
+                -o \${name}.filter2.csv \
                 -f ts_2_3_max:gte:10 \
                 -f tsm_copy_identity:eq:1 \
                 -f duplicate_group_is_representative:eq:1 \
                 -f repeat_overlap:eq:0 \
+                -f delta_total_edit_bp:gte:2 \
+                -R \${name}.filter2.report.json
+
+            twb cli -O \${name}.filter2.csv \
+                -o \${name}.filter3.csv \
+                -f ts_2_3_max:gte:10 \
+                -f tsm_copy_identity:eq:1 \
+                -f duplicate_group_is_representative:eq:1 \
                 -f delta_total_mismatch_bp:gte:1 \
                 -f delta_total_edit_bp:gte:2 \
-                -R \${name}.filter.strict.report.json
+                -f repeat_overlap:eq:0 \
+                -f identity_20bp_upstream:gte:0.9 \
+                -f identity_20bp_downstream:gte:0.9 \
+                -R \${name}.filter3.report.json
         fi
     done
 
     # Concatenate all filtered CSVs into one file
-    loose_files=\$(ls ${sample}.*.filter.loose.csv | sort -V)
-    strict_files=\$(ls ${sample}.*.filter.strict.csv | sort -V)
+    filter1_files=\$(ls ${sample}.*.filter1.csv | sort -V)
+    filter2_files=\$(ls ${sample}.*.filter2.csv | sort -V)
+    filter3_files=\$(ls ${sample}.*.filter3.csv | sort -V)
 
-    csvtk concat \${loose_files}  -o ${sample}.filter.loose.csv
-    csvtk concat \${strict_files} -o ${sample}.filter.strict.csv
+    csvtk concat \${filter1_files}  -o ${sample}.filter1.csv
+    csvtk concat \${filter2_files}  -o ${sample}.filter2.csv
+    csvtk concat \${filter3_files}  -o ${sample}.filter3.csv
 
-    loose_files=\$(ls ${sample}.*.filter.loose_report.json | sort -V)
-    strict_files=\$(ls ${sample}.*.filter.strict_report.json | sort -V)
+    filter1_files=\$(ls ${sample}.*.filter1.report.json | sort -V)
+    filter2_files=\$(ls ${sample}.*.filter2.report.json | sort -V)
+    filter3_files=\$(ls ${sample}.*.filter3.report.json | sort -V)
 
-    cat \${loose_files}  > ${sample}.filter.loose_report.json
-    cat \${strict_files} > ${sample}.filter.strict_report.json
+    cat \${filter1_files}  > ${sample}.filter1.report.json
+    cat \${filter2_files}  > ${sample}.filter2.report.json
+    cat \${filter3_files}  > ${sample}.filter3.report.json
     """
 }
