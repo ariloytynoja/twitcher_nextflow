@@ -8,7 +8,7 @@ process TWB_FILTER {
     tag "${sample}"
     label 'twb'
 
-    publishDir "${params.outdir}/twb/${sample}/filtered", mode: 'copy'
+    publishDir "${params.outdir}/twb/filtered", mode: 'copy'
 
     input:
     tuple val(sample), path(csvs)
@@ -16,8 +16,8 @@ process TWB_FILTER {
     output:
     tuple val(sample), path("${sample}.filter.loose.csv"),  emit: loose, optional: true
     tuple val(sample), path("${sample}.filter.strict.csv"), emit: strict, optional: true
-    tuple val(sample), path("${sample}.filter.loose_report.json"),  emit: loose_report, optional: true
-    tuple val(sample), path("${sample}.filter.strict_report.json"), emit: strict_report, optional: true
+    tuple val(sample), path("${sample}.filter.loose.report.json"),  emit: loose_report, optional: true
+    tuple val(sample), path("${sample}.filter.strict.report.json"), emit: strict_report, optional: true
 
     script:
     """
@@ -36,19 +36,19 @@ process TWB_FILTER {
                 -f repeat_overlap:eq:0 \
                 -f delta_total_mismatch_bp:gte:0 \
                 -f delta_total_edit_bp:gte:2 \
-                -R \${name}.filter.loose_report.json
+                -R \${name}.filter.loose.report.json
 
             twb cli -O \$(realpath \${csv}) \
                 -o \${name}.filter.strict.csv \
-                -f identity_20bp_upstream:eq:1 \
-                -f identity_20bp_downstream:eq:1 \
+                -f identity_20bp_upstream:eq:0.9 \
+                -f identity_20bp_downstream:eq:0.9 \
                 -f ts_2_3_max:gte:10 \
                 -f tsm_copy_identity:eq:1 \
                 -f duplicate_group_is_representative:eq:1 \
                 -f repeat_overlap:eq:0 \
                 -f delta_total_mismatch_bp:gte:1 \
                 -f delta_total_edit_bp:gte:2 \
-                -R \${name}.filter.strict_report.json
+                -R \${name}.filter.strict.report.json
         fi
     done
 

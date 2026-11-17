@@ -6,7 +6,7 @@ process TWB_PROCESS {
     tag "${sample}"
     label 'twb'
 
-    publishDir "${params.outdir}/twb/${sample}/processed", mode: 'copy'
+    publishDir "${params.outdir}/twb/${sample}", mode: 'copy'
 
     input:
     tuple val(sample), path(csv)

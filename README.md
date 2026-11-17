@@ -41,7 +41,7 @@ The pipeline is designed for human data and GRCh38. Analyses with any other refe
 By default, the analysis is performed for the [GIAB "easy regions"](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/GRCh38_notinalldifficultregions.bed.gz) that make 74.4% of the genome. See the [GIAB README file](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/v2.0-GRCh38-Union-README.txt) for the description.
 
 The expected timeline of an analysis may look like this:  
-![Nextflow timeline](twitcher_asm_nf/misc/twitcher_bam_timeline_NA12877.png)   
+![Nextflow timeline](twitcher_asm_nf/misc/twitcher_bam_timeline_NA12878.png)   
 The Twitcher part is expected to get increasingly fast as an ever greater proportion of the segregating mutations are stored in the DB. 
 
 

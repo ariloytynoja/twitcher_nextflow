@@ -2,10 +2,10 @@
  * Download GA4GH genome stratification file with its TBI indexes.
  */
 
-process DOWNLOAD_GA4GH_MASK {
+process DOWNLOAD_STRATIFICATION {
     label 'download'
 
-    storeDir "${projectDir}/reference/annotation"
+    storeDir "${projectDir}/ref/stratifications/${params.ref_version}"
 
     output:
     path "notdifficult.bed.gz",      emit: bed
