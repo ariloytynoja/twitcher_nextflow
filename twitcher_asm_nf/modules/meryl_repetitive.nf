@@ -6,7 +6,7 @@
 process MERYL_REPETITIVE {
     label 'low_mem'
 
-    storeDir "${projectDir}/reference/meryl"
+    storeDir "${projectDir}/ref/meryl"
 
     input:
     path merylDB

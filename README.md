@@ -24,6 +24,14 @@ An example command:
 nextflow run main.nf --assembly data/NA12878.verkko_asm.fa.gz --prefix NA12878.verkko_asm
 ```
 
+If the assembly is already aligned, one can start from the BAM file:
+```
+nextflow run main.nf --bam results/alignments/NA12877.verkko_asm.bam \
+    --bai results/alignments/NA12877.verkko_asm.bam.bai --prefix NA12877.verkko_asm
+```
+
+By default, the postprocessed and filtered output will be placed under `results/twb/filtered/`. The full processed data are stored under `results/twb/$name/` and can be imported and filtered within TWB. 
+
 The default settings (in `nextflow.config`) were used on a SLURM system with options:
 
 ```
@@ -31,6 +39,7 @@ The default settings (in `nextflow.config`) were used on a SLURM system with opt
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=80G
 ```
+
 
 This (and possibly less) should be sufficient for an analysis of a human sample using `minimap2` as the aligner (peak memory 44.5 GB), but may run out of memory with `winnowmap` (provided as an alternative aligner). Providing 4GB per Twitcher thread (e.g., 20 CPUs and 80GB, or 10 CPUs and 40GB) will fail with OOM on low-complexity regions but should succeed in typical genic regions. 
 

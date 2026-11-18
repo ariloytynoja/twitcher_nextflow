@@ -11,8 +11,8 @@ process TWITCHER_BAM {
     }
     
     input:
-    tuple val(sample), path(bam), path(bai), path(ref), path(ref_fai), path(ref_gzi), path(mask), path(mask_tbi), val(chr)
-
+    tuple val(sample), path(bam), path(bai), path(ref), path(ref_fai), path(ref_gzi), path(mask), path(mask_tbi), val(chr), val(db_ready)
+    
     output:
     tuple val(sample), path("*.csv"),           emit: csv, optional: true
     tuple val(sample), path("*.failed.txt"),    emit: failed, optional: true

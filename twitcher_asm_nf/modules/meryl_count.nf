@@ -6,7 +6,7 @@
 process MERYL_COUNT {
     label 'high_mem'
 
-    storeDir "${projectDir}/reference/meryl"
+    storeDir "${projectDir}/ref/meryl"
 
     input:
     path ref_fa

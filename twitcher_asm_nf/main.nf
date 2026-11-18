@@ -26,6 +26,7 @@ if (!params.assembly && !params.bam) {
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
 include { DOWNLOAD_STRATIFICATION } from './modules/download_stratification'
+include { DOWNLOAD_DATABASE       } from './modules/download_database'
 include { MERYL_COUNT             } from './modules/meryl_count'
 include { MERYL_REPETITIVE        } from './modules/meryl_repetitive'
 include { WINNOWMAP_ALIGN         } from './modules/winnowmap_align'
@@ -51,6 +52,11 @@ workflow {
 
     // Download genome stratification mask
     DOWNLOAD_STRATIFICATION()
+
+    // Download precomputed db-files for faster analysis
+    if (params.download_db) {
+        DOWNLOAD_DATABASE()
+    }
 
     if (params.bam) {
         // Use pre-aligned BAM — skip assembly alignment entirely
@@ -109,6 +115,7 @@ workflow {
         .combine(DOWNLOAD_STRATIFICATION.out.bed)
         .combine(DOWNLOAD_STRATIFICATION.out.bed_tbi)
         .combine(chromosomes_ch)
+        .combine(DOWNLOAD_DATABASE.out.done)
 
     TWITCHER_BAM(twitcher_input_ch)
 
