@@ -97,5 +97,5 @@ cd /path/to/twitcher_nextflow/twitcher_asm_nf
 ./bin/twb_serve.sh
 ```
 
-Click the link to open [TWB in a browser](https://localhost:8001) or copy-paste `https://localhost:8001` to the browser URL field.
+Click the link to open [TWB in a browser](http://localhost:8001) or copy-paste `http://localhost:8001` to the browser URL field.
 
