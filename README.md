@@ -47,7 +47,7 @@ Note that the pipeline defines `--db` as a shared resource. This speeds up subse
 
 The pipeline is designed for human data and GRCh38. Analyses with any other reference require building the matching annotation files for `twb cli` (explained on the Twitcher website) or disabling the gene and repeat annotation.
 
-By default, the analysis is performed for the [GIAB "easy regions"](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/GRCh38_notinalldifficultregions.bed.gz) that make 74.4% of the genome. See the [GIAB README file](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/v2.0-GRCh38-Union-README.txt) for the description.
+By default, the analysis is performed on regions combining the [GIAB "easy regions"](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/GRCh38_notinalldifficultregions.bed.gz) and [refseq_cds regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/FunctionalRegions/GRCh38_refseq_cds.bed.gz) that together make 76.1% of the genome. See the GIAB README files for the [easy regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/v2.0-GRCh38-Union-README.txt) and [refseq_cds regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/FunctionalRegions/v2.0-GRCh38-FunctionalRegions-README.txt) for the description.
 
 The expected timeline of a plain Twitcher analysis (with a prealigned BAM) may look like this:  
 ![Nextflow timeline](twitcher_asm_nf/misc/twitcher_bam_timeline_HG002.png)   
