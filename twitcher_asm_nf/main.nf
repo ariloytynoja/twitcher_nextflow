@@ -4,9 +4,9 @@ nextflow.enable.dsl=2
 // ---------------------------------------------------------------------------
 // Parameters
 // ---------------------------------------------------------------------------
-params.assembly  = null          // path to local fa.gz assembly; required unless --bam is set
-params.bam       = null          // path to pre-aligned BAM; skips alignment if provided
-params.bai       = null          // path to BAM index; inferred from bam if null
+params.assembly  = null                 // path to local fa.gz assembly; required unless --bam is set
+params.bam       = null                 // path to pre-aligned BAM; skips alignment if provided
+params.bai       = "${params.bam}.bai"  // path to BAM index; inferred from bam if null
 params.outdir    = "results"
 params.ref_url   = "https://twitcher.it.helsinki.fi/data/hg38/hg38.no_alt.fa.gz"
 params.ref_fai   = "${params.ref_url}.fai"
@@ -68,14 +68,23 @@ workflow {
             bai_ch = SAMTOOLS_INDEX.out.bai
         }
 
+        samplename_ch = bam_ch.map { bam ->
+           params.prefix != "latest" ? params.prefix : bam.getBaseName(1)
+        }
     } else {
         // Align assembly to reference
         assembly_ch = Channel.fromPath(params.assembly, checkIfExists: true)
+
+        samplename_ch = assembly_ch.map { assembly ->
+            params.prefix != "latest" ? params.prefix :
+                assembly.name.replaceAll(/\.(fasta|fas|fa)(\.gz)?$/, '')
+        }
 
         if (params.aligner == 'winnowmap') {
             MERYL_COUNT(DOWNLOAD_REFERENCE.out.ref_fa, params.kmer_size)
             MERYL_REPETITIVE(MERYL_COUNT.out.merylDB, params.kmer_distinct_threshold)
             WINNOWMAP_ALIGN(
+                samplename_ch,
                 assembly_ch,
                 DOWNLOAD_REFERENCE.out.ref_fa,
                 MERYL_REPETITIVE.out.repetitive_kmers
@@ -84,7 +93,8 @@ workflow {
 
         } else if (params.aligner == 'minimap2') {
             MINIMAP2_ALIGN(
-                assembly_ch,
+                samplename_ch,
+                assembly_ch,    
                 DOWNLOAD_REFERENCE.out.ref_fa
             )
             bam_ch = MINIMAP2_ALIGN.out.bam
@@ -106,9 +116,9 @@ workflow {
     )
 
     // Build twitcher input channel from bam + bai (however they were obtained)
-    twitcher_input_ch = bam_ch
+    twitcher_input_ch = samplename_ch
+        .combine(bam_ch)
         .combine(bai_ch)
-        .map { bam, bai -> tuple(bam.getBaseName(1), bam, bai) }
         .combine(DOWNLOAD_REFERENCE.out.ref_fa)
         .combine(DOWNLOAD_REFERENCE.out.ref_fai)
         .combine(DOWNLOAD_REFERENCE.out.ref_gzi)

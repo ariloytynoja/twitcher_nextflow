@@ -13,6 +13,8 @@ git clone https://github.com/ariloytynoja/twitcher_nextflow.git
 
 ## Analysis of de novo genome assemblies 
 
+Long-read sequencing data can be fairly easily assembled into contig-level draft genomes. Analysis of genome assemblies is expected to be the fastest and most accurate way of analysing TSMs with Twitcher. Analysis of VCFs is approximately as fast but may miss mutation clusters due to variant calling errors. Analysis of HiFi BAMs allows identifying somatic events but, due to the great number of events, is much slower.
+
 The pipeline `twitcher_asm_nf`:
 
   - aligns a genome assembly against a reference using `minimap2`
@@ -21,13 +23,12 @@ The pipeline `twitcher_asm_nf`:
 
 An example command:
 ```
-nextflow run main.nf --assembly data/NA12878.verkko_asm.fa.gz --prefix NA12878.verkko_asm
+nextflow run main.nf --assembly data/NA12878.verkko_asm.fa.gz [ --prefix NA12878.verkko_asm ]
 ```
 
 If the assembly is already aligned, one can start from the BAM file:
 ```
-nextflow run main.nf --bam results/alignments/NA12877.verkko_asm.bam \
-    --bai results/alignments/NA12877.verkko_asm.bam.bai --prefix NA12877.verkko_asm
+nextflow run main.nf --bam results/alignments/NA12877.verkko_asm.bam [ --prefix NA12877.verkko_asm ]
 ```
 
 By default, the postprocessed and filtered output will be placed under `results/twb/filtered/`. The full processed data are stored under `results/twb/$name/` and can be imported and filtered within TWB. 
@@ -39,7 +40,6 @@ The default settings (in `nextflow.config`) were used on a SLURM system with opt
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=80G
 ```
-
 
 This (and possibly less) should be sufficient for an analysis of a human sample using `minimap2` as the aligner (peak memory 44.5 GB), but may run out of memory with `winnowmap` (provided as an alternative aligner). Providing 4GB per Twitcher thread (e.g., 20 CPUs and 80GB, or 10 CPUs and 40GB) will fail with OOM on low-complexity regions but should succeed in typical genic regions. 
 
@@ -56,8 +56,28 @@ The Twitcher part is expected to get increasingly fast as an ever greater propor
 
 ## Analysis of VCF data
 
-TBD
+The pipeline `twitcher_vcf_nf`:
 
+  - runs `twitcher` on a VCF file, possibly usin a BAM file for phasing
+  - prcesses and filters the CSV output files with `twb cli`
+
+An example command:
+```
+nextflow run main.nf --vcf HG002_novaseq.hard-filtered.vcf.gz \
+  --bam HG002_novaseq.cram --bai HG002_novaseq.cram.crai [ --prefix HG002.dragen ]
+```
+[ Note that the script accepts CRAMs but assumes the index file to be `${bam}.bai`. If not defined as above, it doesn't find the file and has to recompute it. ]
+
+If the VCF is fully phased, no BAM is required:
+```
+nextflow run main.nf --vcf variants_GRCh38_all_HGSVC2024v1.0_NA24385.vcf.gz \
+  [ --prefix HG002.HGSVC ]
+```
+
+
+By default, the postprocessed and filtered output will be placed under `results/twb/filtered/`. The full processed data are stored under `results/twb/$name/` and can be imported and filtered within TWB. 
+
+The pipeline is designed for human data and GRCh38. By default, the analysis is performed for the GIAB "easy regions" (see above).
 
 ## Analysis of HiFi BAM data
 

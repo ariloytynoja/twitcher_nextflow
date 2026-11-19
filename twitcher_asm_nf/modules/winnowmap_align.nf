@@ -11,6 +11,7 @@ process WINNOWMAP_ALIGN {
     publishDir "${params.outdir}/alignments", mode: 'copy'
 
     input:
+    val sample
     path assembly
     path ref_fa
     path repetitive_kmers
@@ -19,7 +20,6 @@ process WINNOWMAP_ALIGN {
     path "*.bam", emit: bam
 
     script:
-    def sample = params.prefix != "latest" ? params.prefix : assembly.simpleName
     def wm_cpus = Math.max(1, Math.floor(task.cpus / 2).toInteger())
     """
     winnowmap \
