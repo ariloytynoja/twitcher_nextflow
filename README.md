@@ -47,7 +47,7 @@ Note that the pipeline defines `--db` as a shared resource. This speeds up subse
 
 The pipeline is designed for human data and GRCh38. Analyses with any other reference require building the matching annotation files for `twb cli` (explained on the Twitcher website) or disabling the gene and repeat annotation.
 
-By default, the analysis is performed on regions combining the [GIAB "easy regions"](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/GRCh38_notinalldifficultregions.bed.gz) and [refseq_cds regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/FunctionalRegions/GRCh38_refseq_cds.bed.gz) that together make 76.1% of the genome. See the GIAB README files for the [easy regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/v2.0-GRCh38-Union-README.txt) and [refseq_cds regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/FunctionalRegions/v2.0-GRCh38-FunctionalRegions-README.txt) for the description.
+By default, the analysis is performed on regions combining the [GIAB not difficult regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/GRCh38_notinalldifficultregions.bed.gz) and [refseq CDS regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/FunctionalRegions/GRCh38_refseq_cds.bed.gz) that together make 76.1% of the genome. See the GIAB README files for the [not difficult regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/union/v2.0-GRCh38-Union-README.txt) and [refseq CDS regions](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/genome-stratifications/v2.0/GRCh38/FunctionalRegions/v2.0-GRCh38-FunctionalRegions-README.txt) for the description.
 
 The expected timeline of a plain Twitcher analysis (with a prealigned BAM) may look like this:  
 ![Nextflow timeline](twitcher_asm_nf/misc/twitcher_bam_timeline_HG002.png)   
@@ -63,10 +63,18 @@ The pipeline `twitcher_vcf_nf`:
 
 An example command:
 ```
+nextflow run main.nf --vcf HG002_novaseq.hard-filtered.vcf.gz --bam HG002_novaseq.bam \
+ [ --copy_bam ] [ --prefix HG002.dragen ]
+```
+
+The option `--copy_bam` copies BAM-formatted phasing data to `results/alignments/` for visualisation with TWB (see below):  
+
+Twitcher accepts CRAM format but the script assumes the index file to be `${bam}.bai`. If not defined with `--bai file.cram.cai`, the index file is not found and is recomputed:
+
+```
 nextflow run main.nf --vcf HG002_novaseq.hard-filtered.vcf.gz \
   --bam HG002_novaseq.cram --bai HG002_novaseq.cram.crai [ --prefix HG002.dragen ]
 ```
-[ Note that the script accepts CRAMs but assumes the index file to be `${bam}.bai`. If not defined as above, it doesn't find the file and has to recompute it. ]
 
 If the VCF is fully phased, no BAM is required:
 ```
@@ -74,10 +82,9 @@ nextflow run main.nf --vcf variants_GRCh38_all_HGSVC2024v1.0_NA24385.vcf.gz \
   [ --prefix HG002.HGSVC ]
 ```
 
-
 By default, the postprocessed and filtered output will be placed under `results/twb/filtered/`. The full processed data are stored under `results/twb/$name/` and can be imported and filtered within TWB. 
 
-The pipeline is designed for human data and GRCh38. By default, the analysis is performed for the GIAB "easy regions" (see above).
+The pipeline is designed for human data and GRCh38. By default, the analysis is performed for the GIAB "not gene not difficult" regions (see above).
 
 ## Analysis of HiFi BAM data
 
