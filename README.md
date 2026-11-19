@@ -99,3 +99,4 @@ cd /path/to/twitcher_nextflow/twitcher_asm_nf
 
 Click the link to open [TWB in a browser](http://localhost:8001) or copy-paste `http://localhost:8001` to the browser URL field.
 
+Note that Twitcher accepts CRAM-formatted data but only BAMs can be visualised in TWB.

@@ -1,4 +1,4 @@
-    /*
+/*
  * Run twitcher over selected (main) chromosomes on a BAM file.
  */
 
@@ -28,7 +28,7 @@ process TWITCHER_VCF {
     def mask_command = params.full_genome ? "" : "-T <(zgrep -w ${chr} ${mask})"
     """
     set -x
-    mkdir -p ${params.db_dir}                          
+    mkdir -p ${params.db_dir}
 
     twitcher vcf \
         ${vcf} \
@@ -80,7 +80,7 @@ process TWITCHER_VCF_PHASED {
     def mask_command = params.full_genome ? "" : "-T <(zgrep -w ${chr} ${mask})"
     """
     set -x
-    mkdir -p ${params.db_dir}                          
+    mkdir -p ${params.db_dir}
 
     twitcher vcf \
         ${vcf} \
@@ -94,7 +94,7 @@ process TWITCHER_VCF_PHASED {
         --only-realigned \
         --csv ${name}.csv \
         --output-failed-alignments ${name}.failed.txt \
-        --stat-output ${name}.stats.txt \   
+        --stat-output ${name}.stats.txt \
         --output-alignment-stats ${name}.alignstats.txt \
         --output-unresolvable  ${name}.unresolvable.txt \
         --range-extension ${params.range_extension} \

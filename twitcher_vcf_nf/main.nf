@@ -34,6 +34,7 @@ include { DOWNLOAD_ANNOTATION     } from './modules/download_annotation'
 include { DOWNLOAD_REPEATMASK     } from './modules/download_repeatmask'
 include { TWB_PROCESS             } from './modules/twb_process'
 include { TWB_FILTER              } from './modules/twb_filter'
+include { COPY_BAM                } from './modules/copy_bam'
 
 // ---------------------------------------------------------------------------
 // Workflow
@@ -166,4 +167,13 @@ workflow {
     TWB_FILTER(
         TWB_PROCESS.out.csv.groupTuple()
     )
+
+    // Copy BAMs such that TWB will see them.
+    if(params.bam && params.copy_bam) {
+        COPY_BAM(
+            samplename_ch
+            .combine(bam_bai_ch)
+            .map { sample, bam, bai -> tuple(sample, bam, bai) }
+        )
+    }
 }
