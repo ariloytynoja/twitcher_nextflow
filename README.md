@@ -82,3 +82,20 @@ The pipeline is designed for human data and GRCh38. By default, the analysis is 
 ## Analysis of HiFi BAM data
 
 TBD
+
+
+
+## Visualisation of results within Twitcher Workbench
+
+The Twitcher results can visualised and further processed within [Twitcher Workbench](https://twitcher.it.helsinki.fi/#twitcher-workbench). The files do not necessarily need to be copied outside the (possibly secure) server, but TWB can be run from server and the results viewed directly from the output directories. If the default options options were used, the results can be visualised with the script `twb_serve.sh`:  
+
+```
+ssh userna@hostname -L 8001:localhost:8001
+
+cd /path/to/twitcher_nextflow/twitcher_asm_nf
+
+./bin/twb_serve.sh
+```
+
+Click the link to open [TWB in a browser](https://localhost:8001) or copy-paste `https://localhost:8001` to the browser URL field.
+
