@@ -88,9 +88,26 @@ The pipeline is designed for human data and GRCh38. By default, the analysis is 
 
 ## Analysis of HiFi BAM data
 
-TBD
+The pipeline `twitcher_hifi_nf`:
 
+  - runs `twitcher` on a PacBio HiFi BAM file
+  - processes and filters the CSV output files with `twb cli`
 
+An example command:
+```
+nextflow run main.nf --bam HG002_PacBio-HiFi-GIABv3.bam [ --prefix HG002.hifi_bam ] [ --chrom chr1 ]
+```
+
+The option `--chrom` allows selecting only one chromosome and thus running multiple chromosomes parallel with separate jobs. Due to huge numbers of de novo mutations, analyses of HiFi files can be slow.
+
+By default, the postprocessed and filtered output will be placed under `results/twb/filtered/`; if `--chrom` is used, they are suffixed with the chromosome name and need to be concatenated manually. `csvtk` is included in the TWB image:
+
+```
+singularity exec -B $PWD:$PWD singularity_cache/aryashta-twb-v0.8.4.img csvtk concat \
+  results/twb/filtered/$prefix.chr*.filter3.csv > results/twb/filtered/$prefix.filter3.csv
+```
+
+The pipeline is designed for human data and GRCh38. By default, the analysis is performed for the GIAB "not gene not difficult" regions (see above).
 
 ## Visualisation of results within Twitcher Workbench
 
