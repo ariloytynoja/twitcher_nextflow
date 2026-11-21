@@ -14,15 +14,15 @@ process TWB_FILTER {
     tuple val(sample), path(csvs)
 
     output:
-    tuple val(sample), path("${sample}.filter1.csv"), emit: filter1, optional: true
-    tuple val(sample), path("${sample}.filter2.csv"), emit: filter2, optional: true
-    tuple val(sample), path("${sample}.filter3.csv"), emit: filter3, optional: true
-    tuple val(sample), path("${sample}.filter1.report.json"), emit: filter1_report, optional: true
-    tuple val(sample), path("${sample}.filter2.report.json"), emit: filter2_report, optional: true
-    tuple val(sample), path("${sample}.filter3.report.json"), emit: filter3_report, optional: true
+    tuple val(sample), path("${sample}.*filter1.csv"), emit: filter1, optional: true
+    tuple val(sample), path("${sample}.*filter2.csv"), emit: filter2, optional: true
+    tuple val(sample), path("${sample}.*filter3.csv"), emit: filter3, optional: true
+    tuple val(sample), path("${sample}.*filter1.report.json"), emit: filter1_report, optional: true
+    tuple val(sample), path("${sample}.*filter2.report.json"), emit: filter2_report, optional: true
+    tuple val(sample), path("${sample}.*filter3.report.json"), emit: filter3_report, optional: true
 
     script:
-    def prefix = params.chrom ? "${sample}.${params.chrom}" : sample
+    def concat_chroms = params.chrom ? 0 : 1
     """
     # Filter each per-chromosome CSV
     for csv in ${csvs}; do
@@ -63,21 +63,27 @@ process TWB_FILTER {
         fi
     done
 
-    # Concatenate all filtered CSVs into one file
-    filter1_files=\$(ls ${sample}.*.filter1.csv 2>/dev/null | sort -V)
-    filter2_files=\$(ls ${sample}.*.filter2.csv 2>/dev/null | sort -V)
-    filter3_files=\$(ls ${sample}.*.filter3.csv 2>/dev/null | sort -V)
+    if [ $concat_chroms -eq 1 ]; then
+        # Concatenate all filtered CSVs into one file
+        filter1_files=\$(ls ${sample}.*.filter1.csv | sort -V)
+        filter2_files=\$(ls ${sample}.*.filter2.csv | sort -V)
+        filter3_files=\$(ls ${sample}.*.filter3.csv | sort -V)
 
-    [ -n "\$filter1_files" ] && csvtk concat \${filter1_files} -o ${prefix}.filter1.csv
-    [ -n "\$filter2_files" ] && csvtk concat \${filter2_files} -o ${prefix}.filter2.csv
-    [ -n "\$filter3_files" ] && csvtk concat \${filter3_files} -o ${prefix}.filter3.csv
+        csvtk concat \${filter1_files}  -o ${sample}.filter1.csv
+        csvtk concat \${filter2_files}  -o ${sample}.filter2.csv
+        csvtk concat \${filter3_files}  -o ${sample}.filter3.csv
 
-    filter1_files=\$(ls ${sample}.*.filter1.report.json 2>/dev/null | sort -V)
-    filter2_files=\$(ls ${sample}.*.filter2.report.json 2>/dev/null | sort -V)
-    filter3_files=\$(ls ${sample}.*.filter3.report.json 2>/dev/null | sort -V)
+        rm \${filter1_files} \${filter2_files} \${filter3_files}
 
-    [ -n "\$filter1_files" ] && cat \${filter1_files} > ${prefix}.filter1.report.json
-    [ -n "\$filter2_files" ] && cat \${filter2_files} > ${prefix}.filter2.report.json
-    [ -n "\$filter3_files" ] && cat \${filter3_files} > ${prefix}.filter3.report.json
+        filter1_files=\$(ls ${sample}.*.filter1.report.json | sort -V)
+        filter2_files=\$(ls ${sample}.*.filter2.report.json | sort -V)
+        filter3_files=\$(ls ${sample}.*.filter3.report.json | sort -V)
+
+        cat \${filter1_files}  > ${sample}.filter1.report.json
+        cat \${filter2_files}  > ${sample}.filter2.report.json
+        cat \${filter3_files}  > ${sample}.filter3.report.json
+    
+        rm \${filter1_files} \${filter2_files} \${filter3_files}
+    fi
     """
 }
