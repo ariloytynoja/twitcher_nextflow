@@ -6,7 +6,7 @@ Find more information about the tools at [https://twitcher.it.helsinki.fi](https
 [Nextflow](https://www.nextflow.io/) provides a convenient way to run bioinformatic pipelines on a HPC as it can install and run the applications automatically through containers. Below, we describe a set of Nextlow pipelines for typical Twitcher analyses. 
 
 Download the pipelines with `git`:
-```
+```bash
 git clone https://github.com/ariloytynoja/twitcher_nextflow.git
 ```
 
@@ -22,12 +22,12 @@ The pipeline `twitcher_asm_nf`:
   - processes and filters the CSV output files with `twb cli`
 
 An example command:
-```
+```bash
 nextflow run main.nf --assembly data/NA12878.verkko_asm.fa.gz [ --prefix NA12878.verkko_asm ]
 ```
 
 If the assembly is already aligned, one can start from the BAM file:
-```
+```bash
 nextflow run main.nf --bam results/alignments/NA12877.verkko_asm.bam [ --prefix NA12877.verkko_asm ]
 ```
 
@@ -35,7 +35,7 @@ By default, the postprocessed and filtered output will be placed under `results/
 
 The default settings (in `nextflow.config`) were used on a SLURM system with options:
 
-```
+```bash
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=80G
@@ -62,7 +62,7 @@ The pipeline `twitcher_vcf_nf`:
   - processes and filters the CSV output files with `twb cli`
 
 An example command:
-```
+```bash
 nextflow run main.nf --vcf HG002_novaseq.hard-filtered.vcf.gz --bam HG002_novaseq.bam \
  [ --copy_bam ] [ --prefix HG002.dragen ]
 ```
@@ -71,13 +71,13 @@ The option `--copy_bam` copies BAM-formatted phasing data to `results/alignments
 
 Twitcher accepts CRAM format but the script assumes the index file to be `${bam}.bai`. If not defined with `--bai file.cram.cai`, the index file is not found and is recomputed:
 
-```
+```bash
 nextflow run main.nf --vcf HG002_novaseq.hard-filtered.vcf.gz \
   --bam HG002_novaseq.cram --bai HG002_novaseq.cram.crai [ --prefix HG002.dragen ]
 ```
 
 If the VCF is fully phased, no BAM is required:
-```
+```bash
 nextflow run main.nf --vcf variants_GRCh38_all_HGSVC2024v1.0_NA24385.vcf.gz \
   [ --prefix HG002.HGSVC ]
 ```
@@ -94,7 +94,7 @@ The pipeline `twitcher_hifi_nf`:
   - processes and filters the CSV output files with `twb cli`
 
 An example command:
-```
+```bash
 nextflow run main.nf --bam HG002_PacBio-HiFi-GIABv3.bam [ --prefix HG002.hifi_bam ] [ --chrom chr1 ]
 ```
 
@@ -102,7 +102,7 @@ The option `--chrom` allows selecting only one chromosome and thus running multi
 
 By default, the postprocessed and filtered output will be placed under `results/twb/filtered/`; if `--chrom` is used, they are suffixed with the chromosome name and need to be concatenated manually. `csvtk` is included in the TWB image:
 
-```
+```bash
 singularity exec -B $PWD:$PWD singularity_cache/aryashta-twb-v0.8.4.img csvtk concat \
   results/twb/filtered/$prefix.chr*.filter3.csv > results/twb/filtered/$prefix.filter3.csv
 ```
@@ -113,7 +113,7 @@ The pipeline is designed for human data and GRCh38. By default, the analysis is 
 
 The Twitcher results can visualised and further processed within [Twitcher Workbench](https://twitcher.it.helsinki.fi/#twitcher-workbench). The files do not necessarily need to be copied outside the (possibly secure) server, but TWB can be run from server and the results viewed directly from the output directories. If the default options options were used, the results can be visualised with the script `twb_serve.sh`:  
 
-```
+```bash
 ssh userna@hostname -L 8001:localhost:8001
 
 cd /path/to/twitcher_nextflow/twitcher_asm_nf
