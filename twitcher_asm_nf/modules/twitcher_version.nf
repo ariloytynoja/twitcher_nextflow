@@ -6,12 +6,12 @@ process TWITCHER_VERSION {
     label 'low_mem'
 
     output:
-    env version, emit: version
+    env 'version', emit: version
 
     script:
     def regex = /(?<=twitcher )\d+\.\d+/
     """
     str=\$(twitcher --version)
-    version=\$(echo "\$str" | grep -oP '${regex}')
+    export version=\$(echo "\$str" | grep -oP '${regex}')
     """
 }
