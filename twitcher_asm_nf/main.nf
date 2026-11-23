@@ -4,15 +4,7 @@ nextflow.enable.dsl=2
 // ---------------------------------------------------------------------------
 // Parameters
 // ---------------------------------------------------------------------------
-params.assembly  = null                 // path to local fa.gz assembly; required unless --bam is set
-params.bam       = null                 // path to pre-aligned BAM; skips alignment if provided
-params.bai       = "${params.bam}.bai"  // path to BAM index; inferred from bam if null
-params.outdir    = "results"
-params.ref_url   = "https://twitcher.it.helsinki.fi/data/hg38/hg38.no_alt.fa.gz"
-params.ref_fai   = "${params.ref_url}.fai"
-params.ref_gzi   = "${params.ref_url}.gzi"
-params.kmer_size = 15
-params.kmer_distinct_threshold = 0.9998
+
 
 // ---------------------------------------------------------------------------
 // Validate required inputs
@@ -107,13 +99,20 @@ workflow {
         bai_ch = SAMTOOLS_INDEX.out.bai
     }
 
-    // Analyse only the full chromosomes
-    chromosomes_ch = Channel.of(
-        'chr1',  'chr2',  'chr3',  'chr4',  'chr5',  'chr6',
-        'chr7',  'chr8',  'chr9',  'chr10', 'chr11', 'chr12',
-        'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18',
-        'chr19', 'chr20', 'chr21', 'chr22', 'chrX'
-    )
+    // Analyse only the chromosome defined or the set of full chromosomes
+    chromosomes_ch = params.chrom ?
+        Channel.of(params.chrom) :
+        (params.chroms_file && new File(params.chroms_file).exists()) ?
+        Channel.fromPath(params.chroms_file)
+            .splitText()
+            .map { it.trim() }
+            .filter { it } :
+        Channel.of(
+            'chr1',  'chr2',  'chr3',  'chr4',  'chr5',  'chr6',
+            'chr7',  'chr8',  'chr9',  'chr10', 'chr11', 'chr12',
+            'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18',
+            'chr19', 'chr20', 'chr21', 'chr22', 'chrX'
+        )
 
     // Build twitcher input channel from bam + bai (however they were obtained)
     twitcher_input_ch = samplename_ch
