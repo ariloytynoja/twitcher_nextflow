@@ -2,16 +2,6 @@
 nextflow.enable.dsl=2
 
 // ---------------------------------------------------------------------------
-// Parameters
-// ---------------------------------------------------------------------------
-params.bam       = null                 // path to pre-aligned BAM
-params.bai       = "${params.bam}.bai"  // path to BAM index; inferred from bam if null
-params.outdir    = "results"
-params.ref_url   = "https://twitcher.it.helsinki.fi/data/hg38/hg38.no_alt.fa.gz"
-params.ref_fai   = "${params.ref_url}.fai"
-params.ref_gzi   = "${params.ref_url}.gzi"
-
-// ---------------------------------------------------------------------------
 // Validate required inputs
 // ---------------------------------------------------------------------------
 if (!params.bam) {
@@ -23,6 +13,7 @@ if (!params.bam) {
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
 include { DOWNLOAD_STRATIFICATION } from './modules/download_stratification'
+include { TWITCHER_VERSION        } from './modules/twitcher_version'
 include { DOWNLOAD_DATABASE       } from './modules/download_database'
 include { SAMTOOLS_INDEX          } from './modules/samtools_index'
 include { TWITCHER_BAM            } from './modules/twitcher_bam'
@@ -47,9 +38,12 @@ workflow {
     // Download genome stratification mask
     DOWNLOAD_STRATIFICATION()
 
+    // Get Twithcer version to get the right database
+    TWITCHER_VERSION()
+
     // Download precomputed db-files for faster analysis
     if (params.download_db) {
-        DOWNLOAD_DATABASE()
+        DOWNLOAD_DATABASE(TWITCHER_VERSION.out.version)
     }
 
     // Analyse pre-aligned BAM 
@@ -68,6 +62,11 @@ workflow {
     // Analyse only the chromosome defined or the set of full chromosomes
     chromosomes_ch = params.chrom ?
         Channel.of(params.chrom) :
+        (params.chroms_file && new File(params.chroms_file).exists()) ?
+        Channel.fromPath(params.chroms_file)
+            .splitText()
+            .map { it.trim() }
+            .filter { it } :
         Channel.of(
             'chr1',  'chr2',  'chr3',  'chr4',  'chr5',  'chr6',
             'chr7',  'chr8',  'chr9',  'chr10', 'chr11', 'chr12',

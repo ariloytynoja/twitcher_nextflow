@@ -2,18 +2,6 @@
 nextflow.enable.dsl=2
 
 // ---------------------------------------------------------------------------
-// Parameters
-// ---------------------------------------------------------------------------
-params.vcf       = null                 // path to local vcf.gz data
-params.tbi       = "${params.vcf}.tbi"  // path to index; computed if null
-params.bam       = null                 // path to phasing BAM
-params.bai       = "${params.bam}.bai"  // path to index; computed if null
-params.outdir    = "results"
-params.ref_url   = "https://twitcher.it.helsinki.fi/data/hg38/hg38.no_alt.fa.gz"
-params.ref_fai   = "${params.ref_url}.fai"
-params.ref_gzi   = "${params.ref_url}.gzi"
-
-// ---------------------------------------------------------------------------
 // Validate required inputs
 // ---------------------------------------------------------------------------
 if (!params.vcf) {
@@ -25,6 +13,7 @@ if (!params.vcf) {
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
 include { DOWNLOAD_STRATIFICATION } from './modules/download_stratification'
+include { TWITCHER_VERSION        } from './modules/twitcher_version'
 include { DOWNLOAD_DATABASE       } from './modules/download_database'
 include { BCFTOOLS_INDEX          } from './modules/bcftools_index'
 include { SAMTOOLS_INDEX          } from './modules/samtools_index'
@@ -51,9 +40,12 @@ workflow {
     // Download genome stratification mask
     DOWNLOAD_STRATIFICATION()
 
+    // Get Twithcer version to get the right database
+    TWITCHER_VERSION()
+
     // Download precomputed db-files for faster analysis
     if (params.download_db) {
-        DOWNLOAD_DATABASE()
+        DOWNLOAD_DATABASE(TWITCHER_VERSION.out.version)
     }
 
     if (params.bam) {
@@ -98,13 +90,20 @@ workflow {
     } 
 
 
-    // Analyse only the full chromosomes
-    chromosomes_ch = Channel.of(
-        'chr1',  'chr2',  'chr3',  'chr4',  'chr5',  'chr6',
-        'chr7',  'chr8',  'chr9',  'chr10', 'chr11', 'chr12',
-        'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18',
-        'chr19', 'chr20', 'chr21', 'chr22', 'chrX'
-    )
+    // Analyse only the chromosome defined or the set of full chromosomes
+    chromosomes_ch = params.chrom ?
+        Channel.of(params.chrom) :
+        (params.chroms_file && new File(params.chroms_file).exists()) ?
+        Channel.fromPath(params.chroms_file)
+            .splitText()
+            .map { it.trim() }
+            .filter { it } :
+        Channel.of(
+            'chr1',  'chr2',  'chr3',  'chr4',  'chr5',  'chr6',
+            'chr7',  'chr8',  'chr9',  'chr10', 'chr11', 'chr12',
+            'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18',
+            'chr19', 'chr20', 'chr21', 'chr22', 'chrX'
+        )
 
     if (params.bam) {
 

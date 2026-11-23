@@ -18,6 +18,7 @@ if (!params.assembly && !params.bam) {
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
 include { DOWNLOAD_STRATIFICATION } from './modules/download_stratification'
+include { TWITCHER_VERSION        } from './modules/twitcher_version'
 include { DOWNLOAD_DATABASE       } from './modules/download_database'
 include { MERYL_COUNT             } from './modules/meryl_count'
 include { MERYL_REPETITIVE        } from './modules/meryl_repetitive'
@@ -45,9 +46,12 @@ workflow {
     // Download genome stratification mask
     DOWNLOAD_STRATIFICATION()
 
+    // Get Twithcer version to get the right database
+    TWITCHER_VERSION()
+
     // Download precomputed db-files for faster analysis
     if (params.download_db) {
-        DOWNLOAD_DATABASE()
+        DOWNLOAD_DATABASE(TWITCHER_VERSION.out.version)
     }
 
     if (params.bam) {
