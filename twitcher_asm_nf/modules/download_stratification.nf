@@ -12,11 +12,9 @@ process DOWNLOAD_STRATIFICATION {
     path "notdifficult.bed.gz.tbi",  emit: bed_tbi
 
     script:
-    //def bed_url     = "https://twitcher.it.helsinki.fi/data/hg38/GRCh38_notinalldifficultregions.bed.gz"
-    def bed_url     = "https://twitcher.it.helsinki.fi/data/hg38/GRCh38_notgenenotdifficult.bed.gz"
 
     """
-    curl -fsSL -o notdifficult.bed.gz     ${bed_url}
-    curl -fsSL -o notdifficult.bed.gz.tbi ${bed_url}.tbi
+    curl -fsSL -o notdifficult.bed.gz     ${params.stratif_url}
+    curl -fsSL -o notdifficult.bed.gz.tbi ${params.stratif_url}.tbi
     """
 }

@@ -12,9 +12,8 @@ process DOWNLOAD_REPEATMASK {
     path "masking.gff3.gz.tbi",     emit: masking_tbi
 
     script:
-    def masking_url = "https://twitcher.it.helsinki.fi/data/hg38/hg38.no_alt.masking.sorted.gff3.gz"
     """
-    curl -fsSL -o masking.gff3.gz         ${masking_url}
-    curl -fsSL -o masking.gff3.gz.tbi     ${masking_url}.tbi
+    curl -fsSL -o masking.gff3.gz         ${params.masking_url}
+    curl -fsSL -o masking.gff3.gz.tbi     ${params.masking_url}.tbi
     """
 }
