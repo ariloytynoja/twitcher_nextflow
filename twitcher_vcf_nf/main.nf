@@ -84,12 +84,6 @@ workflow {
         tbi_ch = BCFTOOLS_INDEX.out.tbi
     }
  
-     // Build optional BAM channel for unphased data
-    if (params.bam) {
-        bam_bai_ch = bam_ch.combine(bai_ch)
-    } 
-
-
     // Analyse only the chromosome defined or the set of full chromosomes
     chromosomes_ch = params.chrom ?
         Channel.of(params.chrom) :
@@ -114,7 +108,8 @@ workflow {
             .combine(DOWNLOAD_REFERENCE.out.ref_fa)
             .combine(DOWNLOAD_REFERENCE.out.ref_fai)
             .combine(DOWNLOAD_REFERENCE.out.ref_gzi)
-            .combine(bam_bai_ch)
+            .combine(bam_ch)        // separate bam
+            .combine(bai_ch)        // separate bai
             .combine(DOWNLOAD_STRATIFICATION.out.bed)
             .combine(DOWNLOAD_STRATIFICATION.out.bed_tbi)
             .combine(chromosomes_ch)
@@ -169,6 +164,8 @@ workflow {
 
     // Copy BAMs such that TWB will see them.
     if(params.bam && params.copy_bam) {
+        bam_bai_ch = bam_ch.combine(bai_ch)
+
         COPY_BAM(
             samplename_ch
             .combine(bam_bai_ch)
