@@ -2,13 +2,6 @@
 nextflow.enable.dsl=2
 
 // ---------------------------------------------------------------------------
-// Validate required inputs
-// ---------------------------------------------------------------------------
-if (!params.vcf) {
-    error "ERROR: Please supply --vcf <path/to/calls.vcf.gz>"
-}
-
-// ---------------------------------------------------------------------------
 // Modules
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
@@ -29,6 +22,13 @@ include { COPY_BAM                } from './modules/copy_bam'
 // Workflow
 // ---------------------------------------------------------------------------
 workflow {
+
+    // ---------------------------------------------------------------------------
+    // Validate required inputs
+    // ---------------------------------------------------------------------------
+    if (!params.vcf) {
+        error "ERROR: Please supply --vcf <path/to/calls.vcf.gz>"
+    }
 
     // Download reference + index files
     DOWNLOAD_REFERENCE(

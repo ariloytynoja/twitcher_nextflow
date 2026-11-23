@@ -2,13 +2,6 @@
 nextflow.enable.dsl=2
 
 // ---------------------------------------------------------------------------
-// Validate required inputs
-// ---------------------------------------------------------------------------
-if (!params.assembly && !params.bam) {
-    error "ERROR: Please supply either --assembly <path/to/assembly.fa.gz> or --bam <path/to/file.bam>"
-}
-
-// ---------------------------------------------------------------------------
 // Modules
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
@@ -30,6 +23,13 @@ include { TWB_FILTER              } from './modules/twb_filter'
 // Workflow
 // ---------------------------------------------------------------------------
 workflow {
+
+    // ---------------------------------------------------------------------------
+    // Validate required inputs
+    // ---------------------------------------------------------------------------
+    if (!params.assembly && !params.bam) {
+        error "ERROR: Please supply either --assembly <path/to/assembly.fa.gz> or --bam <path/to/file.bam>"
+    }
 
     // Download reference + index files
     DOWNLOAD_REFERENCE(

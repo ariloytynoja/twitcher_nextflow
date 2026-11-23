@@ -2,13 +2,6 @@
 nextflow.enable.dsl=2
 
 // ---------------------------------------------------------------------------
-// Validate required inputs
-// ---------------------------------------------------------------------------
-if (!params.bam) {
-    error "ERROR: Please supply --bam <path/to/file.bam>"
-}
-
-// ---------------------------------------------------------------------------
 // Modules
 // ---------------------------------------------------------------------------
 include { DOWNLOAD_REFERENCE      } from './modules/download_reference'
@@ -27,6 +20,13 @@ include { COPY_BAM                } from './modules/copy_bam'
 // Workflow
 // ---------------------------------------------------------------------------
 workflow {
+
+    // ---------------------------------------------------------------------------
+    // Validate required inputs
+    // ---------------------------------------------------------------------------
+    if (!params.bam) {
+        error "ERROR: Please supply --bam <path/to/file.bam>"
+    }
 
     // Download reference + index files
     DOWNLOAD_REFERENCE(
