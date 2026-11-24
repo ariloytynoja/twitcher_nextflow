@@ -8,13 +8,19 @@ process DOWNLOAD_STRATIFICATION {
     storeDir "${projectDir}/ref/stratifications/${params.ref_version}"
 
     output:
-    path "notdifficult.bed.gz",      emit: bed
-    path "notdifficult.bed.gz.tbi",  emit: bed_tbi
+    path "notdifficult.bed.gz",     emit: bed
+    path "notdifficult.bed.gz.tbi", emit: bed_tbi
 
     script:
-
+    def src      = params.stratif_url
+    def is_local = !src.startsWith("http://") && !src.startsWith("https://")
     """
-    curl -fsSL -o notdifficult.bed.gz     ${params.stratif_url}
-    curl -fsSL -o notdifficult.bed.gz.tbi ${params.stratif_url}.tbi
+    if ${is_local}; then
+        cp ${src}     notdifficult.bed.gz
+        cp ${src}.tbi notdifficult.bed.gz.tbi
+    else
+        curl -fsSL -o notdifficult.bed.gz     ${src}
+        curl -fsSL -o notdifficult.bed.gz.tbi ${src}.tbi
+    fi
     """
 }
